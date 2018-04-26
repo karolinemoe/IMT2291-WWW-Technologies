@@ -8,8 +8,8 @@
  */
 
 require_once 'config.php';
-require_once 'DB.php';
-require_once 'User.php';
+require_once '../classes/DB.php';
+require_once '../classes/User.php';
 
 session_start();
 
