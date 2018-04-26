@@ -1,0 +1,84 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-view1">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    <div class="card">
+      <template is="dom-if" if="{{student}}">
+        <div class="circle">S</div>
+        <h1>View Student</h1>
+        <!--Innmat til siden-->
+          <div class="article">
+            {% if abonnementer %}
+            <div class="spillelister">
+                <h2>Abonnerte spillelister</h2>
+              <!--Mine spillelister, for hver du abonerer på-->
+              <div class="row">
+                {% for abonnement in abonnementer %}
+                <a href="spillelisteSide.php/?id={{ abonnement.id }}">
+                  <div class="column">
+                    <div class="content">
+                      <img src="{{ abonnement.bildelink }}" class="bilde">
+                        <h3>{{ abonnement.navn }}</h3>
+                    </div>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+            </div> <!-- Mine spillelister ferdig -->
+            {% endif %}<br><br><br><br>
+            {% if nyevideoer %}
+              <h3>Nyeste videoer</h3><br>
+              <div class="row">
+                {% for nyvideo in nyevideoer %}
+                  <a href="videoSide.php/?id={{ nyvideo.id }}">
+                    <div class="column">
+                      <div class="content">
+                        <img src="{{ nyvideo.bildeLink }}" class="bilde">
+                        <h3>{{ nyvideo.tittel }}</h3>
+                        {{ nyvideo.emne }}<br>
+                        {{ nyvideo.foreleser }}<br>
+                        {{ nyvideo.dato }}
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+          </div> <!-- Innmat ferdig -->
+        </template>
+        <template is="dom-if" if="{{teacher}}">
+          <div class="circle">T</div>
+        </template>
+        <template is="dom-if" if="{{admin}}">
+          <div class="circle">T</div>
+        </template>
+      </div>
+  </template>
+
+  <script>
+    class MyView1 extends Polymer.Element {
+      static get is() { return 'my-view1'; }
+    }
+
+    window.customElements.define(MyView1.is, MyView1);
+  </script>
+</dom-module>

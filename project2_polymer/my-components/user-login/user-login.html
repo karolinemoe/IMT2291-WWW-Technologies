@@ -1,0 +1,132 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="user-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+        color: black;
+      }
+    </style>
+    <iron-ajax
+      id="ajax"
+        auto
+      with-credentials="true"
+      url="[[loginURL]][[params]]"
+      handle-as="json"
+      content-type="application/x-www-form-urlencoded"
+      on-response="handleResponse"
+      last-response="{{response}}"
+      debounce-duration="300"></iron-ajax>
+    <template is="dom-if" if="{{notLoggedIn}}">
+      <paper-input id="uname" label="Brukernavn" value="{{userName}}"></paper-input>
+      <paper-input id="pword" label="Password" value="{{password}}"></paper-input>
+      <paper-button raised on-click="login">Logg inn</paper-button>
+    </template>
+    <template is="dom-if" if="{{loggedIn}}">
+      Velkommen [[userDetails.username]]<br>
+      <paper-button raised on-click="profile">Min profil</paper-button>
+      <paper-button raised on-click="logout">Logg ut</paper-button>
+    </template>
+  </template>
+
+  <script>
+    /**
+     * `user-login`
+     *
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class UserLogin extends Polymer.Element {
+      static get is() { return 'user-login'; }
+      static get properties() {
+        return {
+          loginURL : {                                    // Used by iron-ajax
+            type: String,
+            value: window.Polymer.apiBaseURL+'login.php'
+          },
+          notLoggedIn: {                                  // Used by template "dom-if"
+            type: Boolean,
+            value: true
+          },
+          loggedIn: {                                     // Used by template "dom-if"
+            type: Boolean,
+            value: false
+          },
+          userType: {                                     // From user input in login dialog
+            type: Number,
+            value: 1
+          },
+          userName: String,                               // From user input in login dialog
+          userDetails: {                                  // From ajax response
+            type: Object
+          },
+          student: {                                      // Exported from element, shows what type of user that is logged in
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          teacher: {                                      // Exported from element, shows what type of user that is logged in
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          admin: {                                      // Exported from element, shows what type of user that is logged in
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          params : String,                                 // Set to '?logout=true' for logout, '' for all other situations
+          page: {
+            notify: true
+          },
+          route: {
+            notify: true
+          }
+        };
+      }
+
+      login() {                                           // Called when user presses button in login dialog
+        this.$.ajax.method = "POST";
+        this.params = '';
+        this.$.ajax.body = {
+          uname: this.userName,
+          pword: this.password,
+          userType: this.userType
+        }
+        this.parentElement.active = false;                // Close the dropdown
+      }
+
+      logout() {                                          // Called when user presses logout button
+        this.$.ajax.method = "GET";
+        this.params = '?logout=true';
+        this.parentElement.active = false;                // Close the drop down
+      }
+
+      profile() {                                         // Called when user presses profile button
+        //this.page = 'profile';
+        this.set('route.path', '/profile/');
+        this.parentElement.active = false;                // Close the drop down
+      }
+
+      handleResponse(res) {
+        this.notLoggedIn = res.detail.response.type==0;
+        this.loggedIn = res.detail.response.type!=0;
+        this.student = res.detail.response.type==1;
+        this.teacher = res.detail.response.type==2;
+        this.admin = res.detail.response.type==3;
+        this.userDetails = {'username': res.detail.response.uname};
+        console.log (res.detail.response);
+      }
+    }
+
+    window.customElements.define(UserLogin.is, UserLogin);
+  </script>
+</dom-module>
